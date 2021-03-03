@@ -10,3 +10,9 @@ target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputF
 target/surefire-reports/genexus.AppTest.txt
 target/surefire-reports/TEST-genexus.AppTest.xml
 target/test-classes/genexus/AppTest.class
+.classpath
+.project
+.settings/org.eclipse.core.resources.prefs
+.settings/org.eclipse.jdt.apt.core.prefs
+.settings/org.eclipse.jdt.core.prefs
+.settings/org.eclipse.m2e.core.prefs
