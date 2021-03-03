@@ -31,7 +31,7 @@ public class GxQueue {
         return q;
     }
 
-    public List<GxQueueMessage> getMessages(int maxCount) {
+    public ArrayList<GxQueueMessage> getMessages(int maxCount) {
         ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(mURL).withAttributeNames("All");
         receiveMessageRequest.setMaxNumberOfMessages(maxCount);
         List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
@@ -46,12 +46,12 @@ public class GxQueue {
         sqs.deleteMessage(mURL, receiptId);
     }
 
-    public boolean sendMessages(List<GxMessageContent> messageContents) {
+    public boolean sendMessages(ArrayList<GxMessageContent> messageContents, String groupId) {
        
         List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
         for (GxMessageContent m : messageContents) {
             boolean add = entries.add(new SendMessageBatchRequestEntry(m.getId(), m.getContents())
-            .withMessageGroupId("groupTest")
+            .withMessageGroupId(groupId)
             .withMessageDeduplicationId(m.getId()));
             if (!add) {
                 return false;

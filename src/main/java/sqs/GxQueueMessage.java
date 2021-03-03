@@ -6,6 +6,10 @@ public class GxQueueMessage
 {
     private Message mAWSMessage;
 
+    /*needed for gx exo wrapper*/
+    public GxQueueMessage() {
+	}
+
     public GxQueueMessage(Message m) {
         mAWSMessage = m;
 	}

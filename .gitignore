@@ -1,15 +1,4 @@
-target/classes/genexus/App.class
-target/classes/sqs/GxMessageContent.class
-target/classes/sqs/GxQueue.class
-target/classes/sqs/GxQueueMessage.class
-target/classes/util/MyLogger.class
-target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
-target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
-target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
-target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
-target/surefire-reports/genexus.AppTest.txt
-target/surefire-reports/TEST-genexus.AppTest.xml
-target/test-classes/genexus/AppTest.class
+target/*
 .classpath
 .project
 .settings/org.eclipse.core.resources.prefs
