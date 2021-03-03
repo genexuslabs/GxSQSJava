@@ -11,11 +11,8 @@ public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
-
-        GxQueue queue = new GxQueue();
-        queue.setURL("https://sqs.us-east-1.amazonaws.com/034683868020/TestQueue.fifo");
-        for (GxQueueMessage m : queue.getMessages()) {
+        GxQueue queue = GxQueue.create("https://sqs.us-east-1.amazonaws.com/034683868020/TestQueue.fifo");
+        for (GxQueueMessage m : queue.getMessages(10)) {
             System.out.println(m.getContents());
         }
     }

@@ -6,27 +6,35 @@ import java.util.logging.Logger;
 
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
-import com.amazonaws.services.sqs.model.AmazonSQSException;
 import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
-import com.sun.tools.sjavac.Log.Level;
+
 
 import util.MyLogger;
 
 
 public class GxQueue {
     
-    private final static Logger logger = Logger.getLogger(MyLogger.class.getName());
+    private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
     private String mURL;
     private final AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
 
-    public void setURL(String url) {
+    private void setURL(String url) {
         mURL = url;
     }
 
-    public List<GxQueueMessage> getMessages() {
-        List<Message> messages = sqs.receiveMessage(mURL).getMessages();
+    public static GxQueue create(String url) {
+        GxQueue q = new GxQueue();
+        q.setURL(url);
+        return q;
+    }
+
+    public List<GxQueueMessage> getMessages(int maxCount) {
+        ReceiveMessageRequest receiveMessageRequest = new ReceiveMessageRequest(mURL).withAttributeNames("All");
+        receiveMessageRequest.setMaxNumberOfMessages(maxCount);
+        List<Message> messages = sqs.receiveMessage(receiveMessageRequest).getMessages();
         ArrayList<GxQueueMessage> out = new ArrayList<>();
         for (Message m : messages) {
             out.add(new GxQueueMessage(m));
