@@ -11,16 +11,22 @@ import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
 import com.amazonaws.services.sqs.model.SendMessageBatchResult;
+import com.amazonaws.services.sqs.model.BatchResultErrorEntry;
 
 import util.MyLogger;
 
 
 public class GxQueue {
+    private static final int NO_ERROR = 0;
+    private static final int SENT_FAILED = 1001;
     
     private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
     private String mURL;
     private final AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
     private boolean mIsFifo;
+
+    private int m_errorCode=0;
+    private String m_errorDescription="";
 
     private void setURL(String url) {
         mURL = url;
@@ -45,6 +51,7 @@ public class GxQueue {
     }
 
     public void removeMessage(String receiptId) {
+        resetErrors();
         sqs.deleteMessage(mURL, receiptId);
     }
 
@@ -58,10 +65,13 @@ public class GxQueue {
     }
 
     public boolean sendMessages(ArrayList<GxMessageContent> messageContents, String groupId) {
+        resetErrors();
         List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
         for (GxMessageContent m : messageContents) {
             boolean add = entries.add(createMessage(m, groupId));
             if (!add) {
+                m_errorCode = SENT_FAILED;
+                m_errorDescription = "Message could no be added";
                 return false;
             }
         }
@@ -70,11 +80,33 @@ public class GxQueue {
             .withQueueUrl(mURL)
             .withEntries(entries);
             SendMessageBatchResult res = sqs.sendMessageBatch(request);
-            return (!res.getFailed().isEmpty());
+            boolean success = (res.getFailed().isEmpty());
+            m_errorCode = success ? NO_ERROR: SENT_FAILED;
+            StringBuilder sb = new StringBuilder();
+            for (BatchResultErrorEntry errorEntry : res.getFailed()) {
+                sb.append("Id:" + errorEntry.getId()+ " Error:'" + errorEntry.getMessage()+"'\n");
+            }
+            m_errorDescription = sb.toString();
+            return success;
         } catch (Exception e) {
             logger.severe(e.getMessage());
+            m_errorCode = SENT_FAILED;
+            m_errorDescription = e.getMessage();
             return false;
         }
+    }
+
+    private void resetErrors() {
+        m_errorCode = NO_ERROR;
+        m_errorDescription = "";
+    }
+
+    public int getErrorCode() {
+        return m_errorCode;
+    }
+
+    public String getErrorDescription() {
+        return m_errorDescription;
     }
 }
 
