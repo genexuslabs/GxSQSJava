@@ -10,7 +10,7 @@ import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.services.sqs.model.ReceiveMessageRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequest;
 import com.amazonaws.services.sqs.model.SendMessageBatchRequestEntry;
-
+import com.amazonaws.services.sqs.model.SendMessageBatchResult;
 
 import util.MyLogger;
 
@@ -20,9 +20,11 @@ public class GxQueue {
     private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
     private String mURL;
     private final AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+    private boolean mIsFifo;
 
     private void setURL(String url) {
         mURL = url;
+        mIsFifo = mURL.contains(".fifo");
     }
 
     public static GxQueue create(String url) {
@@ -46,13 +48,19 @@ public class GxQueue {
         sqs.deleteMessage(mURL, receiptId);
     }
 
+    private SendMessageBatchRequestEntry createMessage(GxMessageContent m, String groupId) {
+        SendMessageBatchRequestEntry entry = new SendMessageBatchRequestEntry(m.getId(), m.getContents());
+        if (mIsFifo) {
+            return entry.withMessageGroupId(groupId)
+            .withMessageDeduplicationId(m.getId());
+        }
+        return entry;
+    }
+
     public boolean sendMessages(ArrayList<GxMessageContent> messageContents, String groupId) {
-       
         List<SendMessageBatchRequestEntry> entries = new ArrayList<>();
         for (GxMessageContent m : messageContents) {
-            boolean add = entries.add(new SendMessageBatchRequestEntry(m.getId(), m.getContents())
-            .withMessageGroupId(groupId)
-            .withMessageDeduplicationId(m.getId()));
+            boolean add = entries.add(createMessage(m, groupId));
             if (!add) {
                 return false;
             }
@@ -61,9 +69,8 @@ public class GxQueue {
             SendMessageBatchRequest request = new SendMessageBatchRequest()
             .withQueueUrl(mURL)
             .withEntries(entries);
-            
-            sqs.sendMessageBatch(request);
-            return true;
+            SendMessageBatchResult res = sqs.sendMessageBatch(request);
+            return (!res.getFailed().isEmpty());
         } catch (Exception e) {
             logger.severe(e.getMessage());
             return false;

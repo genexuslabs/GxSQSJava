@@ -24,7 +24,8 @@ public class AppTest
         if (m_url == null) {
             m_url = System.getenv("QUEUE_URL");
             if (m_url == null || m_url.isEmpty()) {
-                m_url = "https://sqs.us-east-1.amazonaws.com/034683868020/TestQueue.fifo";
+                //fifo m_url = "https://sqs.us-east-1.amazonaws.com/034683868020/TestQueue.fifo";
+                m_url = "https://sqs.us-east-1.amazonaws.com/034683868020/StandardQueue";
             }
         }
         return m_url;
@@ -34,7 +35,8 @@ public class AppTest
     public void sendMessages()
     {
         GxQueue q = sendMsgs(getUrl());
-        //assertEquals(true, q.getMessages(10).size() > 0);
+       // assertTrue(message, condition);
+        assertEquals(true, q.getMessages(10).size() > 0);
     
     }
 
@@ -72,7 +74,7 @@ public class AppTest
         // send some messages
         GxQueue q = sendMsgs(getUrl());
         // see if we have them on the queue
-        //assertEquals(true, q.getMessages(10).size() > 0);
+        assertEquals(true, q.getMessages(10).size() > 0);
         
     }
 
