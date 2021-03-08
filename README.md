@@ -20,5 +20,18 @@ See https://docs.aws.amazon.com/config/latest/developerguide/security-iam.html f
 
 ## Sending messages to the queue
 
+```java
+   GxQueue queue = GxQueue.create(url);
+   
+   // Sending 10 messages
+    ArrayList<GxMessageContent> contents = new ArrayList<>();
+    for (int i = 0 ; i < 10; i++) {
+        GxMessageContent m = new GxMessageContent();
+        m.setId(String.valueOf(i));
+        m.setContents("Message " + m.getId());
+        contents.add(m);
+    }
+   queue.sendMessages(contents, "groupTest");
+   return queue;
+```
 
-GxQueue q = GxQueue.create (<queue uri>);
