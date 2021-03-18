@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.PredefinedClientConfigurations;
 import com.amazonaws.services.sqs.AmazonSQS;
 import com.amazonaws.services.sqs.AmazonSQSClientBuilder;
 import com.amazonaws.services.sqs.model.Message;
@@ -22,11 +24,33 @@ public class GxQueue {
     
     private static final Logger logger = Logger.getLogger(MyLogger.class.getName());
     private String mURL;
-    private final AmazonSQS sqs = AmazonSQSClientBuilder.defaultClient();
+    private final AmazonSQS sqs = getClient();
     private boolean mIsFifo;
 
     private int m_errorCode=0;
     private String m_errorDescription="";
+
+    private static AmazonSQS getClient()
+    {
+        String proxyHost = System.getenv("PROXY_HOST");
+        String proxyPortStr = System.getenv("PROXY_PORT");
+        if (proxyHost != null && !proxyHost.trim().isEmpty()) {
+            int proxyPort = 0;
+            try {
+                proxyPort = Integer.parseInt(proxyPortStr);
+            }
+            catch (NumberFormatException e)
+            {
+                proxyPort = 8080;
+            }
+            return AmazonSQSClientBuilder.standard().withClientConfiguration(PredefinedClientConfigurations.defaultConfig()
+            .withProxyHost(proxyHost)
+            .withProxyPort(proxyPort)
+            .withNonProxyHosts("")).build();
+        } else {
+            return AmazonSQSClientBuilder.defaultClient();
+        }
+    }
 
     private void setURL(String url) {
         mURL = url;
