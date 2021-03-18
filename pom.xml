@@ -40,6 +40,10 @@
       <groupId>com.amazonaws</groupId>
       <artifactId>aws-java-sdk-sqs</artifactId>
     </dependency>
+    <dependency>
+      <groupId>com.amazonaws</groupId>
+      <artifactId>aws-java-sdk-dynamodb</artifactId>
+    </dependency>
   </dependencies>
 
   
